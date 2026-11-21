@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Реклама — @melvkin_</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0b0c0e;
+    }
+    .fullscreen-wrap {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, #181c26 0%, #0b0c0e 100%);
+    }
+    .fullscreen-banner {
+      width: 100vw;
+      height: 100vh;
+      object-fit: contain;
+      display: block;
+    }
+    .fallback-banner {
+      text-align: center;
+      padding: 32px;
+      max-width: 520px;
+    }
+    .floating-bar {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 100;
+      gap: 10px;
+    }
+    .floating-bar > * {
+      pointer-events: auto;
+      backdrop-filter: blur(12px);
+      background: rgba(19, 21, 26, 0.85);
+    }
+  </style>
+</head>
+<body>
+  <div class="floating-bar">
+    <a href="./" id="back-btn" class="btn btn-sm">← Вернуться на сайт</a>
+    <div style="display:flex;gap:8px;padding:4px;border-radius:10px;border:1px solid var(--border);">
+      <a href="./me" class="btn btn-sm" style="border:none;background:transparent;">О проекте</a>
+      <a href="./upd" class="btn btn-sm" style="border:none;background:transparent;">Обновления</a>
+    </div>
+  </div>
+
+  <div class="fullscreen-wrap">
+    <!-- Если добавите файл banner.png в корень репозитория, раскомментируйте строчку ниже и удалите блок fallback-banner -->
+    <!-- <img src="banner.png" alt="Реклама проекта" class="fullscreen-banner"> -->
+    <div class="fallback-banner card">
+      <div class="badge" style="margin-bottom: 14px;">/ads • Полноэкранный режим</div>
+      <h1 style="font-size: 26px; margin-bottom: 10px;">Создается @melvkin_</h1>
+      <p style="color: var(--muted); font-size: 15px; margin-bottom: 20px;">
+        Здесь отображается ваш полноэкранный баннер. Чтобы поставить свою картинку, просто загрузите её в репозиторий под именем <code>banner.png</code>.
+      </p>
+      <a href="./upd" class="btn btn-discord">Перейти к обновлениям</a>
+    </div>
+  </div>
+
+  <script>
+    (async () => {
+      const backBtn = document.getElementById("back-btn");
+      if (document.referrer && document.referrer.startsWith(window.location.origin)) {
+        backBtn.href = document.referrer;
+      } else {
+        backBtn.href = linkTo("");
+      }
+      // Выдаём ачивку «Любопытный», если пользователь авторизован
+      await unlockAchievement("curious");
+    })();
+  </script>
+</body>
+</html>

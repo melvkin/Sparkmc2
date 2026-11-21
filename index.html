@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@melvkin_ — Главная</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main class="container">
+    <section class="card" style="padding: 36px 28px; margin-bottom: 24px;">
+      <div class="badge" style="margin-bottom: 14px;">В разработке • @melvkin_</div>
+      <h1 style="font-size: clamp(26px, 4vw, 38px); letter-spacing: -0.03em; margin-bottom: 12px;">
+        Минималистичный мир с уникальным лором и механиками
+      </h1>
+      <p style="color: var(--muted); max-width: 600px; margin-bottom: 24px; font-size: 15px;">
+        Авторизуйтесь через Discord, чтобы получить личный профиль по короткой ссылке <code style="color: var(--text);">/ваш_ник</code>, настроить баннер, аватарку и собирать ачивки проекта.
+      </p>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;" id="hero-actions">
+        <button class="btn btn-discord" onclick="loginWithDiscord()">Войти через Discord</button>
+        <a href="./me" class="btn">Узнать о проекте</a>
+        <a href="./upd" class="btn">Обновления</a>
+      </div>
+    </section>
+
+    <section class="grid-3" style="margin-bottom: 28px;">
+      <div class="card">
+        <div style="font-size: 20px; margin-bottom: 8px;">📖</div>
+        <h3 style="font-size: 16px; margin-bottom: 6px;">Продуманный лор</h3>
+        <p style="color: var(--muted); font-size: 14px;">Сюжетные линии, события мира и история, на которую влияют сами игроки.</p>
+      </div>
+      <div class="card">
+        <div style="font-size: 20px; margin-bottom: 8px;">⚙️</div>
+        <h3 style="font-size: 16px; margin-bottom: 6px;">Свои механики</h3>
+        <p style="color: var(--muted); font-size: 14px;">Новые взаимодействия, кастомные предметы и баланс без лишнего визуального шума.</p>
+      </div>
+      <div class="card">
+        <div style="font-size: 20px; margin-bottom: 8px;">🏆</div>
+        <h3 style="font-size: 16px; margin-bottom: 6px;">Профили и ачивки</h3>
+        <p style="color: var(--muted); font-size: 14px;">Личная карточка игрока с баннером, описанием и наградами за активность.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+        <h2 style="font-size: 18px;">Участники проекта</h2>
+        <span style="color: var(--muted); font-size: 13px;" id="players-count">Загрузка...</span>
+      </div>
+      <div id="players-list" class="grid-3"></div>
+    </section>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script>
+    (async () => {
+      await renderLayout("");
+      const auth = await getCurrentProfile();
+      if (auth && auth.profile) {
+        const actions = document.getElementById("hero-actions");
+        actions.innerHTML = `
+          <a href="${linkTo(auth.profile.username)}" class="btn btn-discord">Открыть мой профиль (/${auth.profile.username})</a>
+          <a href="${linkTo("settings")}" class="btn">Настроить профиль</a>
+          <a href="${linkTo("upd")}" class="btn">Обновления</a>
+        `;
+      }
+
+      const listEl = document.getElementById("players-list");
+      const countEl = document.getElementById("players-count");
+      if (!sb) {
+        countEl.textContent = "Ожидает подключения ключа в config.js";
+        listEl.innerHTML = `<p style="color:var(--muted);font-size:14px;">Вставьте Publishable key в файл <b>config.js</b>, чтобы здесь появились профили игроков.</p>`;
+        return;
+      }
+
+      const { data: profiles } = await sb
+        .from("profiles")
+        .select("username, avatar_url, bio")
+        .order("created_at", { ascending: false })
+        .limit(12);
+
+      if (!profiles || profiles.length === 0) {
+        countEl.textContent = "0 игроков";
+        listEl.innerHTML = `<p style="color:var(--muted);font-size:14px;">Пока никого нет — станьте первым, войдя через Discord!</p>`;
+        return;
+      }
+
+      countEl.textContent = `Показано: ${profiles.length}`;
+      listEl.innerHTML = profiles.map(p => {
+        const av = p.avatar_url || "https://cdn.discordapp.com/embed/avatars/0.png";
+        const bio = p.bio ? p.bio.slice(0, 60) + (p.bio.length > 60 ? "..." : "") : "Участник проекта";
+        return `
+          <a href="${linkTo(p.username)}" class="card" style="padding:14px;display:flex;align-items:center;gap:12px;transition:0.15s;">
+            <img src="${av}" alt="" style="width:42px;height:42px;border-radius:50%;object-fit:cover;background:#1f2430;flex-shrink:0;">
+            <div style="min-width:0;">
+              <div style="font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">/${p.username}</div>
+              <div style="color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${bio}</div>
+            </div>
+          </a>
+        `;
+      }).join("");
+    })();
+  </script>
+</body>
+</html>
