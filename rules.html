@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@melvkin_ — Правила</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js?v=5"></script>
+  <style>
+    .rules-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .rule-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .rule-num {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      padding: 4px 10px;
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .rule-text h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .rule-text p {
+      color: var(--muted);
+      font-size: 14.5px;
+      line-height: 1.55;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <main class="content">
+      <h1 class="page-title">Правила проекта</h1>
+      <p class="page-subtitle">Короткий свод правил для комфортной игры и общения.</p>
+
+      <div class="rules-list">
+        <div class="card rule-item">
+          <span class="rule-num">01</span>
+          <div class="rule-text">
+            <h3>Уважение к участникам</h3>
+            <p>Запрещены оскорбления, травля, токсичное поведение и провокации как в игре, так и в профилях на сайте.</p>
+          </div>
+        </div>
+        <div class="card rule-item">
+          <span class="rule-num">02</span>
+          <div class="rule-text">
+            <h3>Честная игра</h3>
+            <p>Использование читов, стороннего ПО, дюпов и критических уязвимостей приводит к бессрочной блокировке.</p>
+          </div>
+        </div>
+        <div class="card rule-item">
+          <span class="rule-num">03</span>
+          <div class="rule-text">
+            <h3>Оформление профилей</h3>
+            <p>В баннерах, аватарках и описании «О себе» запрещён шок-контент, реклама сторонних ресурсов и спам.</p>
+          </div>
+        </div>
+        <div class="card rule-item">
+          <span class="rule-num">04</span>
+          <div class="rule-text">
+            <h3>Сохранность построек и лора</h3>
+            <p>Гриферство и бессмысленная порча чужих территорий запрещены, если это не предусмотрено сюжетом ивента.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    initLayout('rules');
+  </script>
+</body>
+</html>
