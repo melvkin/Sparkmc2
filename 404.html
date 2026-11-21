@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@melvkin_</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Подключаем config.js строго от корня репозитория, чтобы работал на любом уровне вложенности URL
+    (function() {
+      const parts = window.location.pathname.split("/").filter(Boolean);
+      const base = (window.location.hostname.endsWith("github.io") && parts.length > 0) ? "/" + parts[0] + "/" : "/";
+      document.write('<script src="' + base + 'config.js?v=4"><\/script>');
+    })();
+  </script>
+</head>
+<body>
+  <div class="app-shell">
+    <div id="site-header"></div>
+    <main class="fullscreen-main" id="router-view">
+      <div class="hero-block">
+        <p class="hero-subtitle">Загрузка...</p>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", async () => {
+      const parts = window.location.pathname.split("/").filter(Boolean);
+      const isGh = window.location.hostname.endsWith("github.io");
+      const slug = isGh ? (parts[1] || "") : (parts[0] || "");
+      const cleanSlug = decodeURIComponent(slug).replace(/\.html$/i, "").toLowerCase();
+
+      const view = document.getElementById("router-view");
+
+      // 1. Если открыт /ads через 404 (без .html)
+      if (cleanSlug === "ads") {
+        window.location.replace(makeUrl("ads.html"));
+        return;
+      }
+
+      // 2. Если открыта главная или пустой путь
+      if (!cleanSlug || cleanSlug === "index") {
+        await renderHeader("home");
+        view.innerHTML = `
+          <section class="hero-block">
+            <h1 class="hero-title">Создается @melvkin_</h1>
+            <p class="hero-subtitle">В идеях: Лор, Механики и т.д.</p>
+            <div class="hero-actions">
+              <a href="${makeUrl("ads")}" data-smooth class="btn btn-primary">Смотреть рекламу</a>
+            </div>
+          </section>
+        `;
+        return;
+      }
+
+      // 3. Страница настроек профиля (/settings)
+      if (cleanSlug === "settings") {
+        await renderHeader("settings");
+        const me = await getCurrentUserProfile();
+        if (!me) {
+          view.innerHTML = `
+            <div class="hero-block">
+              <h2 class="hero-title" style="font-size:28px;">Нужна авторизация</h2>
+              <p class="hero-subtitle">Войдите через Discord, чтобы настроить свой профиль.</p>
+              <button class="btn btn-primary" onclick="loginWithDiscord()">Войти через Discord</button>
+            </div>
+          `;
+          return;
+        }
+
+        view.innerHTML = `
+          <div class="card">
+            <div class="form-wrap">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 style="font-size:20px; font-weight:700;">Настройки профиля</h2>
+                <a href="${makeUrl(me.username)}" data-smooth class="btn">← В профиль</a>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Никнейм (фиксированный)</label>
+                <input type="text" class="form-input" value="${me.username}" disabled>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Аватарка (загрузить картинку)</label>
+                <input type="file" id="avatar-file" class="form-input" accept="image/*">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Баннер профиля (загрузить картинку)</label>
+                <input type="file" id="banner-file" class="form-input" accept="image/*">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Информация о себе</label>
+                <textarea id="bio-input" class="form-textarea" placeholder="Расскажите о себе...">${me.bio || ""}</textarea>
+              </div>
+
+              <div style="display:flex; gap:10px; justify-content:space-between; flex-wrap:wrap;">
+                <button class="btn btn-primary" id="save-btn" onclick="saveSettings()">Сохранить изменения</button>
+                <button class="btn btn-danger" onclick="logoutUser()">Выйти из аккаунта</button>
+              </div>
+              <div class="status-msg" id="save-status"></div>
+            </div>
+          </div>
+        `;
+
+        window.saveSettings = async function() {
+          const btn = document.getElementById("save-btn");
+          const status = document.getElementById("save-status");
+          btn.disabled = true;
+          status.textContent = "Сохранение...";
+
+          let avatarUrl = me.avatar_url;
+          let bannerUrl = me.banner_url;
+
+          const avatarFile = document.getElementById("avatar-file").files[0];
+          const bannerFile = document.getElementById("banner-file").files[0];
+
+          if (avatarFile) {
+            const ext = avatarFile.name.split(".").pop();
+            const path = `${me.id}/avatar_${Date.now()}.${ext}`;
+            const { error } = await sb.storage.from("media").upload(path, avatarFile, { upsert: true });
+            if (!error) {
+              avatarUrl = sb.storage.from("media").getPublicUrl(path).data.publicUrl;
+            }
+          }
+
+          if (bannerFile) {
+            const ext = bannerFile.name.split(".").pop();
+            const path = `${me.id}/banner_${Date.now()}.${ext}`;
+            const { error } = await sb.storage.from("media").upload(path, bannerFile, { upsert: true });
+            if (!error) {
+              bannerUrl = sb.storage.from("media").getPublicUrl(path).data.publicUrl;
+            }
+          }
+
+          const bio = document.getElementById("bio-input").value.trim();
+
+          const { error } = await sb
+            .from("profiles")
+            .update({ avatar_url: avatarUrl, banner_url: bannerUrl, bio: bio })
+            .eq("id", me.id);
+
+          btn.disabled = false;
+          if (error) {
+            status.style.color = "#f87171";
+            status.textContent = "Ошибка сохранения: " + error.message;
+          } else {
+            status.style.color = "#4ade80";
+            status.textContent = "Сохранено! Переходим в профиль...";
+            setTimeout(() => navigateSmooth(makeUrl(me.username)), 600);
+          }
+        };
+        return;
+      }
+
+      // 4. Публичный профиль игрока /(никнейм)
+      await renderHeader("profile");
+      const { data: target } = await sb
+        .from("profiles")
+        .select("*")
+        .eq("username", cleanSlug)
+        .maybeSingle();
+
+      if (!target) {
+        view.innerHTML = `
+          <div class="hero-block">
+            <h1 class="hero-title" style="font-size:36px;">404</h1>
+            <p class="hero-subtitle">Страница или пользователь «${cleanSlug}» не найдены.</p>
+            <a href="${makeUrl("")}" data-smooth class="btn btn-primary">На главную</a>
+          </div>
+        `;
+        return;
+      }
+
+      const me = await getCurrentUserProfile();
+      const isOwner = me && me.id === target.id;
+      const avatar = target.avatar_url || "https://cdn.discordapp.com/embed/avatars/0.png";
+      const bannerStyle = target.banner_url ? `style="background-image: url('${target.banner_url}')"` : "";
+
+      view.innerHTML = `
+        <div class="card">
+          <div class="profile-banner" ${bannerStyle}></div>
+          <div class="profile-body">
+            <div class="profile-top">
+              <img src="${avatar}" class="profile-avatar" alt="${target.username}">
+              ${isOwner ? `
+                <div class="profile-actions">
+                  <a href="${makeUrl("settings")}" data-smooth class="btn btn-primary">Редактировать</a>
+                  <button class="btn btn-danger" onclick="logoutUser()">Выйти</button>
+                </div>
+              ` : ""}
+            </div>
+            <h1 class="profile-name">${target.username}</h1>
+            <div class="profile-handle">@${target.username}</div>
+            <div class="profile-bio">${target.bio ? target.bio : '<span style="color:#8b8d98;">Пользователь пока ничего не рассказал о себе.</span>'}</div>
+          </div>
+        </div>
+      `;
+    });
+  </script>
+</body>
+</html>
