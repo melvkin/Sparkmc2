@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>О проекте — @melvkin_</title>
+  <style>
+:root {
+  --bg: #09090b;
+  --card: #0f0f12;
+  --border: #1e1e24;
+  --border-hover: #32323c;
+  --text: #f4f4f5;
+  --muted: #71717a;
+  --accent: #e4e4e7;
+  --discord: #5865F2;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+.wrap {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 48px;
+}
+.brand {
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--muted);
+}
+nav a:hover, nav a.active { color: var(--text); }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.btn:hover { border-color: var(--border-hover); background: #15151a; }
+.btn-sm { padding: 5px 10px; font-size: 12px; border-radius: 6px; }
+.btn-primary {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+.btn-primary:hover { background: #d4d4d8; border-color: #d4d4d8; }
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+}
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+}
+.desc {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 22px;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+input[type="text"], textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+}
+input[type="text"]:focus, textarea:focus { border-color: var(--border-hover); }
+input[readonly] { color: var(--muted); cursor: not-allowed; }
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <a href="./" class="brand">@melvkin_</a>
+      <nav id="top-nav"></nav>
+    </header>
+    <main>
+      <div class="box">
+        <div class="title">Создается @melvkin_</div>
+        <div class="desc">В идеях: Лор, Механики и т.д.</div>
+        <div class="actions">
+          <a href="upd" class="btn btn-primary">Узнать об обновлениях первым →</a>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+window.App = (() => {
+  const url = (typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL) || 'https://ieybcjpqsrvztfcetcgj.supabase.co';
+  const key = (typeof SUPABASE_KEY !== 'undefined' && SUPABASE_KEY) ||
+              (typeof SUPABASE_ANON_KEY !== 'undefined' && SUPABASE_ANON_KEY) ||
+              (typeof ANON_KEY !== 'undefined' && ANON_KEY) ||
+              (typeof PUBLISHABLE_KEY !== 'undefined' && PUBLISHABLE_KEY) ||
+              (window.CONFIG && (window.CONFIG.SUPABASE_KEY || window.CONFIG.anonKey || window.CONFIG.key)) || '';
+  let client = (typeof sb !== 'undefined' && sb) ||
+               (typeof supabaseClient !== 'undefined' && supabaseClient) ||
+               (typeof _supabase !== 'undefined' && _supabase) || null;
+  if (!client && window.supabase && key) {
+    client = window.supabase.createClient(url, key);
+  }
+
+  function getBase() {
+    const parts = location.pathname.split('/').filter(Boolean);
+    if (location.hostname.endsWith('.github.io')) {
+      const known = ['index.html', 'me.html', 'ads.html', '404.html', 'me', 'ads', 'upd', 'settings'];
+      if (parts.length > 0 && !known.includes(parts[0])) {
+        return '/' + parts[0] + '/';
+      }
+    }
+    return '/';
+  }
+
+  const base = getBase();
+
+  async function login() {
+    if (!client) return alert('Не найден ключ в config.js');
+    await client.auth.signInWithOAuth({
+      provider: 'discord',
+      options: { redirectTo: location.origin + base }
+    });
+  }
+
+  async function logout() {
+    if (!client) return;
+    await client.auth.signOut();
+    location.href = base;
+  }
+
+  async function getUserAndProfile() {
+    if (!client) return { user: null, profile: null };
+    const { data: { session } } = await client.auth.getSession();
+    if (!session) return { user: null, profile: null };
+    const { data: profile } = await client
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .maybeSingle();
+    return { user: session.user, profile };
+  }
+
+  async function unlockAchievement(userId, slug) {
+    if (!client || !userId) return;
+    const { data: ach } = await client.from('achievements').select('id').eq('slug', slug).maybeSingle();
+    if (ach) {
+      await client.from('user_achievements').upsert(
+        { user_id: userId, achievement_id: ach.id },
+        { onConflict: 'user_id,achievement_id', ignoreDuplicates: true }
+      );
+    }
+  }
+
+  async function renderHeader(active) {
+    const nav = document.getElementById('top-nav');
+    if (!nav) return;
+    const { profile } = await getUserAndProfile();
+    const authHtml = profile
+      ? `<a href="${base}${profile.username}" class="${active === 'profile' ? 'active' : ''}">@${profile.username}</a>`
+      : `<button class="btn btn-sm" onclick="App.login()">Войти</button>`;
+    nav.innerHTML = `
+      <a href="${base}" class="${active === 'home' ? 'active' : ''}">главная</a>
+      <a href="${base}me.html" class="${active === 'me' ? 'active' : ''}">о проекте</a>
+      <a href="${base}upd" class="${active === 'upd' ? 'active' : ''}">обновления</a>
+      <a href="${base}ads.html" class="${active === 'ads' ? 'active' : ''}">реклама</a>
+      ${authHtml}
+    `;
+  }
+
+  return { client, base, login, logout, getUserAndProfile, unlockAchievement, renderHeader };
+})();
+</script>
+
+  <script>App.renderHeader('me');</script>
+</body>
+</html>

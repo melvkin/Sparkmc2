@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Реклама — @melvkin_</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      overflow: hidden; background: #09090b; color: #f4f4f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+    }
+    .full {
+      width: 100vw; height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .full img {
+      width: 100vw; height: 100vh; object-fit: contain; display: block;
+    }
+    .placeholder {
+      color: #71717a; font-size: 14px; text-align: center; padding: 20px;
+    }
+    .back {
+      position: fixed; top: 16px; left: 16px; z-index: 10;
+      padding: 7px 12px; border-radius: 8px; font-size: 13px;
+      background: rgba(15, 15, 18, 0.85); color: #f4f4f5;
+      border: 1px solid #1e1e24; text-decoration: none;
+      backdrop-filter: blur(6px);
+    }
+    .back:hover { border-color: #32323c; }
+  </style>
+</head>
+<body>
+  <a href="./" class="back" id="back-link">← на сайт</a>
+  <div class="full">
+    <!-- Замените блок placeholder на <img src="ВАША_КАРТИНКА.png" alt="ads"> -->
+    <div class="placeholder">Место для полноэкранного баннера (/ads)</div>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+window.App = (() => {
+  const url = (typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL) || 'https://ieybcjpqsrvztfcetcgj.supabase.co';
+  const key = (typeof SUPABASE_KEY !== 'undefined' && SUPABASE_KEY) ||
+              (typeof SUPABASE_ANON_KEY !== 'undefined' && SUPABASE_ANON_KEY) ||
+              (typeof ANON_KEY !== 'undefined' && ANON_KEY) ||
+              (typeof PUBLISHABLE_KEY !== 'undefined' && PUBLISHABLE_KEY) ||
+              (window.CONFIG && (window.CONFIG.SUPABASE_KEY || window.CONFIG.anonKey || window.CONFIG.key)) || '';
+  let client = (typeof sb !== 'undefined' && sb) ||
+               (typeof supabaseClient !== 'undefined' && supabaseClient) ||
+               (typeof _supabase !== 'undefined' && _supabase) || null;
+  if (!client && window.supabase && key) {
+    client = window.supabase.createClient(url, key);
+  }
+
+  function getBase() {
+    const parts = location.pathname.split('/').filter(Boolean);
+    if (location.hostname.endsWith('.github.io')) {
+      const known = ['index.html', 'me.html', 'ads.html', '404.html', 'me', 'ads', 'upd', 'settings'];
+      if (parts.length > 0 && !known.includes(parts[0])) {
+        return '/' + parts[0] + '/';
+      }
+    }
+    return '/';
+  }
+
+  const base = getBase();
+
+  async function login() {
+    if (!client) return alert('Не найден ключ в config.js');
+    await client.auth.signInWithOAuth({
+      provider: 'discord',
+      options: { redirectTo: location.origin + base }
+    });
+  }
+
+  async function logout() {
+    if (!client) return;
+    await client.auth.signOut();
+    location.href = base;
+  }
+
+  async function getUserAndProfile() {
+    if (!client) return { user: null, profile: null };
+    const { data: { session } } = await client.auth.getSession();
+    if (!session) return { user: null, profile: null };
+    const { data: profile } = await client
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .maybeSingle();
+    return { user: session.user, profile };
+  }
+
+  async function unlockAchievement(userId, slug) {
+    if (!client || !userId) return;
+    const { data: ach } = await client.from('achievements').select('id').eq('slug', slug).maybeSingle();
+    if (ach) {
+      await client.from('user_achievements').upsert(
+        { user_id: userId, achievement_id: ach.id },
+        { onConflict: 'user_id,achievement_id', ignoreDuplicates: true }
+      );
+    }
+  }
+
+  async function renderHeader(active) {
+    const nav = document.getElementById('top-nav');
+    if (!nav) return;
+    const { profile } = await getUserAndProfile();
+    const authHtml = profile
+      ? `<a href="${base}${profile.username}" class="${active === 'profile' ? 'active' : ''}">@${profile.username}</a>`
+      : `<button class="btn btn-sm" onclick="App.login()">Войти</button>`;
+    nav.innerHTML = `
+      <a href="${base}" class="${active === 'home' ? 'active' : ''}">главная</a>
+      <a href="${base}me.html" class="${active === 'me' ? 'active' : ''}">о проекте</a>
+      <a href="${base}upd" class="${active === 'upd' ? 'active' : ''}">обновления</a>
+      <a href="${base}ads.html" class="${active === 'ads' ? 'active' : ''}">реклама</a>
+      ${authHtml}
+    `;
+  }
+
+  return { client, base, login, logout, getUserAndProfile, unlockAchievement, renderHeader };
+})();
+</script>
+
+  <script>
+    (async () => {
+      const back = document.getElementById('back-link');
+      back.href = App.base;
+      if (document.referrer && document.referrer.startsWith(location.origin) && !document.referrer.endsWith('/ads.html')) {
+        back.href = document.referrer;
+      }
+      const { user } = await App.getUserAndProfile();
+      if (user) await App.unlockAchievement(user.id, 'curious');
+    })();
+  </script>
+</body>
+</html>
