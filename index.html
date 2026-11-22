@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spark MC — Главная</title>
-    <style>html, body { background-color: #09090b; color: #fafafa; }</style>
+    <style>html, body { background-color: #09090b !important; color: #fafafa !important; }</style>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script defer src="config.js?v=13"></script>
+    <script defer src="config.js?v=14"></script>
 </head>
 <body>
     <main class="page-main" style="text-align: center; align-items: center;">
@@ -24,13 +24,12 @@
     </main>
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
-            try { await initAuth(); } catch (e) { console.error("initAuth:", e); }
-            try { renderLayoutShell(); } catch (e) { console.error("renderLayoutShell:", e); }
+            try { await initAuth(); } catch (e) { console.error(e); }
+            try { renderLayoutShell(); } catch (e) { console.error(e); }
             document.body.classList.add("page-ready");
 
-            // Загрузка динамических текстов из таблицы site_content
             try {
-                if (sb) {
+                if (typeof sb !== "undefined" && sb) {
                     const { data } = await sb.from("site_content").select("key, value");
                     if (data) {
                         const content = {};
@@ -39,12 +38,10 @@
                             document.getElementById("home-title").textContent = content.home_title;
                             document.title = content.home_title + " — Главная";
                         }
-                        if (content.home_desc) {
-                            document.getElementById("home-desc").textContent = content.home_desc;
-                        }
+                        if (content.home_desc) document.getElementById("home-desc").textContent = content.home_desc;
                     }
                 }
-            } catch (e) { console.error("site_content:", e); }
+            } catch (e) { console.error(e); }
         });
     </script>
 </body>
