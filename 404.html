@@ -4,53 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spark MC</title>
-    <style>html, body { background-color: #09090b; color: #fafafa; }</style>
+    <style>html, body { background-color: #09090b !important; color: #fafafa !important; }</style>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script defer src="config.js?v=13"></script>
+    <script defer src="config.js?v=14"></script>
 </head>
 <body>
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
-            try { await initAuth(); } catch (e) { console.error("initAuth:", e); }
-            try { renderLayoutShell(); } catch (e) { console.error("renderLayoutShell:", e); }
+            try { await initAuth(); } catch (e) { console.error(e); }
+            try { renderLayoutShell(); } catch (e) { console.error(e); }
             document.body.classList.add("page-ready");
 
             try {
                 const main = document.createElement("main");
                 main.className = "page-main";
                 main.id = "app-main";
-
                 const footer = document.querySelector("footer.site-footer");
-                if (footer) {
-                    document.body.insertBefore(main, footer);
-                } else {
-                    document.body.appendChild(main);
-                }
+                if (footer) document.body.insertBefore(main, footer);
+                else document.body.appendChild(main);
 
                 const path = window.location.pathname;
                 const basePath = "/Sparkmc2/";
-                let route = path;
-                if (route.startsWith(basePath)) {
-                    route = route.substring(basePath.length);
-                }
-                route = route.replace(/\/$/, "");
-                if (!route) route = "index.html";
+                let route = path.startsWith(basePath) ? path.substring(basePath.length) : path;
+                route = route.replace(/\/$/, "") || "index.html";
 
-                if (route === "admin" || route === "admin.html") {
-                    renderAdmin(main);
-                } else if (route === "settings" || route === "settings.html") {
-                    renderSettings(main);
-                } else if (route === "updates" || route === "updates.html") {
-                    renderUpdates(main);
-                } else if (route === "index.html" || route === "") {
-                    window.location.href = appUrl("");
-                } else if (route === "lore" || route === "lore.html") {
-                    window.location.href = appUrl("lore");
-                } else {
-                    renderProfile(main, route);
-                }
+                if (route === "admin" || route === "admin.html") renderAdmin(main);
+                else if (route === "settings" || route === "settings.html") renderSettings(main);
+                else if (route === "updates" || route === "updates.html") renderUpdates(main);
+                else if (route === "index.html" || route === "") window.location.href = appUrl("");
+                else if (route === "lore" || route === "lore.html") window.location.href = appUrl("lore");
+                else renderProfile(main, route);
             } catch (e) {
-                console.error("routing:", e);
+                console.error("Routing error:", e);
                 document.body.classList.add("page-ready");
             }
         });
@@ -60,63 +45,30 @@
                 container.innerHTML = `<div class="card"><h2>Доступ запрещён</h2><p>Эта страница доступна только администратору.</p></div>`;
                 return;
             }
-            container.innerHTML = `<div class="card">
-                <h2>Админ-панель</h2>
-                <p style="color: var(--muted); margin-bottom: 20px;">Управление текстами сайта</p>
-                <div id="admin-content" style="margin-top: 20px;">Загрузка...</div>
-            </div>`;
-
+            container.innerHTML = `<div class="card"><h2>Админ-панель</h2><p style="color: var(--muted); margin-bottom: 20px;">Управление текстами сайта</p><div id="admin-content" style="margin-top: 20px;">Загрузка...</div></div>`;
             const contentDiv = document.getElementById("admin-content");
+            
             try {
                 const { data, error } = await sb.from("site_content").select("*").order("key");
                 if (error) throw error;
-
                 const items = data || [];
+                
                 let html = `<form id="site-content-form" style="display: flex; flex-direction: column; gap: 16px;">`;
-                if (items.length === 0) {
-                    html += `<p>Нет записей. Добавь первую через форму ниже.</p>`;
-                }
                 items.forEach(item => {
-                    html += `
-                        <div style="display: flex; flex-direction: column; gap: 6px;">
-                            <label style="font-size: 13px; color: var(--muted); font-weight: 600;">${escapeHtml(item.key)}</label>
-                            <textarea class="textarea" name="content_${item.key}" rows="3">${escapeHtml(item.value)}</textarea>
-                        </div>
-                    `;
+                    html += `<div style="display: flex; flex-direction: column; gap: 6px;"><label style="font-size: 13px; color: var(--muted); font-weight: 600;">${escapeHtml(item.key)}</label><textarea class="textarea" name="content_${item.key}" rows="3">${escapeHtml(item.value)}</textarea></div>`;
                 });
                 html += `<button type="submit" class="btn btn-primary" style="margin-top: 10px;">Сохранить изменения текстов</button></form>`;
-
-                html += `
-                    <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border);">
-                        <h3 style="margin-bottom: 12px;">Добавить новый параметр</h3>
-                        <form id="add-content-form" style="display: flex; flex-direction: column; gap: 12px;">
-                            <input class="input" name="new_key" placeholder="Ключ (например, home_title)" required>
-                            <textarea class="textarea" name="new_value" placeholder="Значение" rows="2" required></textarea>
-                            <button type="submit" class="btn">Добавить параметр</button>
-                        </form>
-                    </div>
-                `;
+                html += `<div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border);"><h3 style="margin-bottom: 12px;">Добавить новый параметр</h3><form id="add-content-form" style="display: flex; flex-direction: column; gap: 12px;"><input class="input" name="new_key" placeholder="Ключ (например, home_title)" required><textarea class="textarea" name="new_value" placeholder="Значение" rows="2" required></textarea><button type="submit" class="btn">Добавить параметр</button></form></div>`;
                 contentDiv.innerHTML = html;
 
                 document.getElementById("site-content-form").addEventListener("submit", async (e) => {
                     e.preventDefault();
                     const btn = e.target.querySelector("button[type='submit']");
-                    btn.disabled = true;
-                    btn.textContent = "Сохранение...";
-
-                    const updates = items.map(item => ({
-                        key: item.key,
-                        value: e.target.elements[`content_${item.key}`].value
-                    }));
-
+                    btn.disabled = true; btn.textContent = "Сохранение...";
+                    const updates = items.map(item => ({ key: item.key, value: e.target.elements[`content_${item.key}`].value }));
                     const { error } = await sb.from("site_content").upsert(updates);
-                    if (error) {
-                        alert("Ошибка сохранения: " + error.message);
-                    } else {
-                        alert("Успешно сохранено!");
-                    }
-                    btn.disabled = false;
-                    btn.textContent = "Сохранить изменения текстов";
+                    alert(error ? "Ошибка: " + error.message : "Успешно сохранено!");
+                    btn.disabled = false; btn.textContent = "Сохранить изменения текстов";
                 });
 
                 document.getElementById("add-content-form").addEventListener("submit", async (e) => {
@@ -124,19 +76,12 @@
                     const key = e.target.elements.new_key.value.trim().toLowerCase().replace(/[^a-z0-9_]/g, "_");
                     const value = e.target.elements.new_value.value.trim();
                     if (!key || !value) return;
-
                     const btn = e.target.querySelector("button[type='submit']");
                     btn.disabled = true;
-
                     const { error } = await sb.from("site_content").upsert({ key, value });
-                    if (error) {
-                        alert("Ошибка добавления: " + error.message);
-                    } else {
-                        alert("Параметр добавлен!");
-                        renderAdmin(container);
-                    }
+                    alert(error ? "Ошибка: " + error.message : "Параметр добавлен!");
+                    if (!error) renderAdmin(container);
                 });
-
             } catch (err) {
                 contentDiv.innerHTML = `<p style="color: var(--danger);">Ошибка загрузки: ${err.message}</p>`;
             }
@@ -147,61 +92,22 @@
                 container.innerHTML = `<div class="card"><h2>Настройки</h2><p style="margin-top: 12px;">Пожалуйста, <button class="btn btn-primary" onclick="loginWithDiscord(this)">войдите через Discord</button>, чтобы настроить профиль.</p></div>`;
                 return;
             }
-            container.innerHTML = `<div class="card">
-                <h2>Настройки профиля</h2>
-                <form id="settings-form" style="display: flex; flex-direction: column; gap: 16px; margin-top: 20px;">
-                    <div>
-                        <label style="font-size: 13px; color: var(--muted);">Никнейм (нельзя изменить)</label>
-                        <input class="input" value="${escapeHtml(currentProfile.username)}" disabled style="opacity: 0.6; cursor: not-allowed;">
-                    </div>
-                    <div>
-                        <label style="font-size: 13px; color: var(--muted);">Баннер</label>
-                        <input type="file" id="banner-file" class="input" accept="image/*">
-                        ${currentProfile.banner_url ? `<img src="${escapeHtml(currentProfile.banner_url)}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px; margin-top: 8px;">` : ""}
-                    </div>
-                    <div>
-                        <label style="font-size: 13px; color: var(--muted);">Аватар</label>
-                        <input type="file" id="avatar-file" class="input" accept="image/*">
-                        ${currentProfile.avatar_url ? `<img src="${escapeHtml(currentProfile.avatar_url)}" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; margin-top: 8px;">` : ""}
-                    </div>
-                    <div>
-                        <label style="font-size: 13px; color: var(--muted);">О себе (Bio)</label>
-                        <textarea class="textarea" id="bio-input" rows="4" placeholder="Расскажите о своём персонаже...">${escapeHtml(currentProfile.bio)}</textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Сохранить профиль</button>
-                </form>
-            </div>`;
+            container.innerHTML = `<div class="card"><h2>Настройки профиля</h2><form id="settings-form" style="display: flex; flex-direction: column; gap: 16px; margin-top: 20px;"><div><label style="font-size: 13px; color: var(--muted);">Никнейм (нельзя изменить)</label><input class="input" value="${escapeHtml(currentProfile.username)}" disabled style="opacity: 0.6; cursor: not-allowed;"></div><div><label style="font-size: 13px; color: var(--muted);">Баннер</label><input type="file" id="banner-file" class="input" accept="image/*">${currentProfile.banner_url ? `<img src="${escapeHtml(currentProfile.banner_url)}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 8px; margin-top: 8px;">` : ""}</div><div><label style="font-size: 13px; color: var(--muted);">Аватар</label><input type="file" id="avatar-file" class="input" accept="image/*">${currentProfile.avatar_url ? `<img src="${escapeHtml(currentProfile.avatar_url)}" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; margin-top: 8px;">` : ""}</div><div><label style="font-size: 13px; color: var(--muted);">О себе (Bio)</label><textarea class="textarea" id="bio-input" rows="4" placeholder="Расскажите о своём персонаже...">${escapeHtml(currentProfile.bio)}</textarea></div><button type="submit" class="btn btn-primary">Сохранить профиль</button></form></div>`;
 
             document.getElementById("settings-form").addEventListener("submit", async (e) => {
                 e.preventDefault();
                 const btn = e.target.querySelector("button[type='submit']");
-                btn.disabled = true;
-                btn.textContent = "Сохранение...";
-
+                btn.disabled = true; btn.textContent = "Сохранение...";
                 try {
                     let bannerUrl = currentProfile.banner_url;
                     let avatarUrl = currentProfile.avatar_url;
-
                     const bannerFile = document.getElementById("banner-file").files[0];
-                    if (bannerFile) {
-                        bannerUrl = await uploadMediaFile(bannerFile, "banners", currentProfile.id);
-                    }
-
+                    if (bannerFile) bannerUrl = await uploadMediaFile(bannerFile, "banners", currentProfile.id);
                     const avatarFile = document.getElementById("avatar-file").files[0];
-                    if (avatarFile) {
-                        avatarUrl = await uploadMediaFile(avatarFile, "avatars", currentProfile.id);
-                    }
-
+                    if (avatarFile) avatarUrl = await uploadMediaFile(avatarFile, "avatars", currentProfile.id);
                     const bio = document.getElementById("bio-input").value;
-
-                    const { error } = await sb.from("profiles").update({
-                        banner_url: bannerUrl,
-                        avatar_url: avatarUrl,
-                        bio: bio
-                    }).eq("id", currentProfile.id);
-
+                    const { error } = await sb.from("profiles").update({ banner_url: bannerUrl, avatar_url: avatarUrl, bio: bio }).eq("id", currentProfile.id);
                     if (error) throw error;
-
                     alert("Профиль успешно обновлён!");
                     currentProfile.banner_url = bannerUrl;
                     currentProfile.avatar_url = avatarUrl;
@@ -209,8 +115,7 @@
                 } catch (err) {
                     alert("Ошибка сохранения: " + err.message);
                 }
-                btn.disabled = false;
-                btn.textContent = "Сохранить профиль";
+                btn.disabled = false; btn.textContent = "Сохранить профиль";
             });
         }
 
@@ -220,22 +125,11 @@
             try {
                 const { data, error } = await sb.from("news").select("*").order("created_at", { ascending: false });
                 if (error) throw error;
-
                 if (!data || data.length === 0) {
                     list.innerHTML = `<p style="color: var(--muted);">Пока нет новостей.</p>`;
                     return;
                 }
-
-                list.innerHTML = data.map(item => `
-                    <div style="padding: 16px; background: var(--surface-hover); border-radius: 12px; border: 1px solid var(--border);">
-                        ${item.image_url ? `<img src="${escapeHtml(item.image_url)}" style="width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-bottom: 12px;">` : ""}
-                        <h3 style="margin-bottom: 8px;">${escapeHtml(item.title)}</h3>
-                        <p style="color: var(--muted); font-size: 14px; margin-bottom: 8px; white-space: pre-wrap;">${escapeHtml(item.content)}</p>
-                        <div style="font-size: 12px; color: var(--muted);">
-                            Автор: ${escapeHtml(item.author)} · ${new Date(item.created_at).toLocaleDateString("ru-RU")}
-                        </div>
-                    </div>
-                `).join("");
+                list.innerHTML = data.map(item => `<div style="padding: 16px; background: var(--surface-hover); border-radius: 12px; border: 1px solid var(--border);">${item.image_url ? `<img src="${escapeHtml(item.image_url)}" style="width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-bottom: 12px;">` : ""}<h3 style="margin-bottom: 8px;">${escapeHtml(item.title)}</h3><p style="color: var(--muted); font-size: 14px; margin-bottom: 8px; white-space: pre-wrap;">${escapeHtml(item.content)}</p><div style="font-size: 12px; color: var(--muted);">Автор: ${escapeHtml(item.author)} · ${new Date(item.created_at).toLocaleDateString("ru-RU")}</div></div>`).join("");
             } catch (err) {
                 list.innerHTML = `<p style="color: var(--danger);">Ошибка загрузки новостей: ${err.message}</p>`;
             }
@@ -250,33 +144,5 @@
                     container.innerHTML = `<div class="card" style="text-align: center;"><h2>Игрок не найден</h2><p>Проверьте правильность никнейма.</p></div>`;
                     return;
                 }
-
-                const bannerHtml = data.banner_url
-                    ? `<div style="width: 100%; height: 160px; background-image: url('${escapeHtml(data.banner_url)}'); background-size: cover; background-position: center; border-radius: 12px 12px 0 0; margin: -28px -28px 0 -28px;"></div>`
-                    : `<div style="width: 100%; height: 160px; background: var(--surface-hover); border-radius: 12px 12px 0 0; margin: -28px -28px 0 -28px;"></div>`;
-
-                const avatarHtml = data.avatar_url
-                    ? `<img src="${escapeHtml(data.avatar_url)}" style="width: 96px; height: 96px; border-radius: 50%; border: 4px solid var(--surface); object-fit: cover; margin-top: -48px; background: #222;">`
-                    : `<div style="width: 96px; height: 96px; border-radius: 50%; border: 4px solid var(--surface); background: #222; margin-top: -48px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--muted);">?</div>`;
-
-                container.innerHTML = `<div class="card" style="text-align: left; position: relative;">
-                    ${bannerHtml}
-                    <div style="padding: 0 16px; display: flex; align-items: flex-end; gap: 16px;">
-                        ${avatarHtml}
-                        <div style="margin-bottom: 8px;">
-                            <h2 style="font-size: 24px; font-weight: 700;">${escapeHtml(data.username)}</h2>
-                            <div style="font-size: 13px; color: var(--muted);">Участник с ${new Date(data.created_at).toLocaleDateString("ru-RU")}</div>
-                        </div>
-                    </div>
-                    <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border);">
-                        <h3 style="font-size: 16px; margin-bottom: 12px;">О себе</h3>
-                        <p style="color: var(--muted); line-height: 1.6; white-space: pre-wrap;">${data.bio ? escapeHtml(data.bio) : "Пока ничего не написано..."}</p>
-                    </div>
-                </div>`;
-            } catch (err) {
-                container.innerHTML = `<div class="card" style="text-align: center;"><h2>Ошибка</h2><p style="color: var(--danger);">${err.message}</p></div>`;
-            }
-        }
-    </script>
-</body>
-</html>
+                const bannerHtml = data.banner_url ? `<div style="width: 100%; height: 160px; background-image: url('${escapeHtml(data.banner_url)}'); background-size: cover; background-position: center; border-radius: 12px 12px 0 0; margin: -28px -28px 0 -28px;"></div>` : `<div style="width: 100%; height: 160px; background: var(--surface-hover); border-radius: 12px 12px 0 0; margin: -28px -28px 0 -28px;"></div>`;
+                const avatarHtml = data.avatar_url ? `<img src="${escapeHtml(data.avatar_url)}" style="width: 96px; height: 96px; border-radius: 50%; border: 4px solid var(--surface); object-fit: cover; margin-top: -48px; background: #222;">` : `<div style="width: 96px; height: 96px; border-radius: 50%; border: 4px solid var(--surface); background: #222; margin-top: -48px; display: flex; align-items: center
