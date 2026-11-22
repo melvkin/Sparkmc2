@@ -4,47 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spark MC</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js?v=12"></script>
+    <style>html, body { background-color: #09090b; color: #fafafa; }</style>
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="config.js?v=13"></script>
 </head>
 <body>
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
-            await initAuth();
-            renderLayoutShell();
+            try { await initAuth(); } catch (e) { console.error("initAuth:", e); }
+            try { renderLayoutShell(); } catch (e) { console.error("renderLayoutShell:", e); }
+            document.body.classList.add("page-ready");
 
-            const main = document.createElement("main");
-            main.className = "page-main";
-            main.id = "app-main";
-            
-            const footer = document.querySelector("footer.site-footer");
-            if (footer) {
-                document.body.insertBefore(main, footer);
-            } else {
-                document.body.appendChild(main);
-            }
+            try {
+                const main = document.createElement("main");
+                main.className = "page-main";
+                main.id = "app-main";
 
-            const path = window.location.pathname;
-            const basePath = "/Sparkmc2/";
-            let route = path;
-            if (route.startsWith(basePath)) {
-                route = route.substring(basePath.length);
-            }
-            route = route.replace(/\/$/, "");
-            if (!route) route = "index.html";
+                const footer = document.querySelector("footer.site-footer");
+                if (footer) {
+                    document.body.insertBefore(main, footer);
+                } else {
+                    document.body.appendChild(main);
+                }
 
-            if (route === "admin" || route === "admin.html") {
-                renderAdmin(main);
-            } else if (route === "settings" || route === "settings.html") {
-                renderSettings(main);
-            } else if (route === "updates" || route === "updates.html") {
-                renderUpdates(main);
-            } else if (route === "index.html" || route === "") {
-                window.location.href = appUrl("");
-            } else if (route === "lore" || route === "lore.html") {
-                window.location.href = appUrl("lore");
-            } else {
-                renderProfile(main, route);
+                const path = window.location.pathname;
+                const basePath = "/Sparkmc2/";
+                let route = path;
+                if (route.startsWith(basePath)) {
+                    route = route.substring(basePath.length);
+                }
+                route = route.replace(/\/$/, "");
+                if (!route) route = "index.html";
+
+                if (route === "admin" || route === "admin.html") {
+                    renderAdmin(main);
+                } else if (route === "settings" || route === "settings.html") {
+                    renderSettings(main);
+                } else if (route === "updates" || route === "updates.html") {
+                    renderUpdates(main);
+                } else if (route === "index.html" || route === "") {
+                    window.location.href = appUrl("");
+                } else if (route === "lore" || route === "lore.html") {
+                    window.location.href = appUrl("lore");
+                } else {
+                    renderProfile(main, route);
+                }
+            } catch (e) {
+                console.error("routing:", e);
+                document.body.classList.add("page-ready");
             }
         });
 
@@ -55,19 +62,19 @@
             }
             container.innerHTML = `<div class="card">
                 <h2>Админ-панель</h2>
-                <p style="color: var(--muted); margin-bottom: 20px;">Управление текстами сайта и новостями</p>
+                <p style="color: var(--muted); margin-bottom: 20px;">Управление текстами сайта</p>
                 <div id="admin-content" style="margin-top: 20px;">Загрузка...</div>
             </div>`;
-            
+
             const contentDiv = document.getElementById("admin-content");
             try {
                 const { data, error } = await sb.from("site_content").select("*").order("key");
                 if (error) throw error;
-                
-                let html = `<form id="site-content-form" style="display: flex; flex-direction: column; gap: 16px;">`;
+
                 const items = data || [];
+                let html = `<form id="site-content-form" style="display: flex; flex-direction: column; gap: 16px;">`;
                 if (items.length === 0) {
-                    html += `<p>Нет записей. Добавьте первую через форму ниже.</p>`;
+                    html += `<p>Нет записей. Добавь первую через форму ниже.</p>`;
                 }
                 items.forEach(item => {
                     html += `
@@ -78,10 +85,10 @@
                     `;
                 });
                 html += `<button type="submit" class="btn btn-primary" style="margin-top: 10px;">Сохранить изменения текстов</button></form>`;
-                
+
                 html += `
                     <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border);">
-                        <h3 style="margin-bottom: 12px;">Добавить новый параметр текста</h3>
+                        <h3 style="margin-bottom: 12px;">Добавить новый параметр</h3>
                         <form id="add-content-form" style="display: flex; flex-direction: column; gap: 12px;">
                             <input class="input" name="new_key" placeholder="Ключ (например, home_title)" required>
                             <textarea class="textarea" name="new_value" placeholder="Значение" rows="2" required></textarea>
@@ -96,17 +103,17 @@
                     const btn = e.target.querySelector("button[type='submit']");
                     btn.disabled = true;
                     btn.textContent = "Сохранение...";
-                    
+
                     const updates = items.map(item => ({
                         key: item.key,
                         value: e.target.elements[`content_${item.key}`].value
                     }));
-                    
+
                     const { error } = await sb.from("site_content").upsert(updates);
                     if (error) {
                         alert("Ошибка сохранения: " + error.message);
                     } else {
-                        alert("Успешно сохранено! Тексты на сайте обновятся мгновенно.");
+                        alert("Успешно сохранено!");
                     }
                     btn.disabled = false;
                     btn.textContent = "Сохранить изменения текстов";
@@ -117,10 +124,10 @@
                     const key = e.target.elements.new_key.value.trim().toLowerCase().replace(/[^a-z0-9_]/g, "_");
                     const value = e.target.elements.new_value.value.trim();
                     if (!key || !value) return;
-                    
+
                     const btn = e.target.querySelector("button[type='submit']");
                     btn.disabled = true;
-                    
+
                     const { error } = await sb.from("site_content").upsert({ key, value });
                     if (error) {
                         alert("Ошибка добавления: " + error.message);
@@ -199,7 +206,6 @@
                     currentProfile.banner_url = bannerUrl;
                     currentProfile.avatar_url = avatarUrl;
                     currentProfile.bio = bio;
-                    renderLayoutShell();
                 } catch (err) {
                     alert("Ошибка сохранения: " + err.message);
                 }
@@ -214,7 +220,7 @@
             try {
                 const { data, error } = await sb.from("news").select("*").order("created_at", { ascending: false });
                 if (error) throw error;
-                
+
                 if (!data || data.length === 0) {
                     list.innerHTML = `<p style="color: var(--muted);">Пока нет новостей.</p>`;
                     return;
@@ -245,7 +251,7 @@
                     return;
                 }
 
-                const bannerHtml = data.banner_url 
+                const bannerHtml = data.banner_url
                     ? `<div style="width: 100%; height: 160px; background-image: url('${escapeHtml(data.banner_url)}'); background-size: cover; background-position: center; border-radius: 12px 12px 0 0; margin: -28px -28px 0 -28px;"></div>`
                     : `<div style="width: 100%; height: 160px; background: var(--surface-hover); border-radius: 12px 12px 0 0; margin: -28px -28px 0 -28px;"></div>`;
 
