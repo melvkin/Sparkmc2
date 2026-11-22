@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spark MC — Главная</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/Sparkmc2/config.js?v=9"></script>
+  <style>
+    .hero {
+      max-width: 640px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: clamp(34px, 6vw, 56px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 18px;
+    }
+    .hero p {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .hero-actions .btn {
+      padding: 11px 22px;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+  <main class="page-main">
+    <section class="hero">
+      <div class="hero-badge">Создается @melvkin_</div>
+      <h1>Spark MC</h1>
+      <p>В идеях: Лор, Механики и уникальный игровой опыт без лишнего шума.</p>
+      <div class="hero-actions">
+        <a href="/Sparkmc2/updates" class="btn btn-primary" data-nav>Узнать об обновлениях первым</a>
+        <a href="/Sparkmc2/lore" class="btn" data-nav>Лор и механики</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (async () => {
+      await initAuth();
+      renderLayoutShell();
+    })();
+  </script>
+</body>
+</html>
