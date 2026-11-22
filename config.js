@@ -1,6 +1,3 @@
-// ==========================================
-// НАСТРОЙКИ СОЦСЕТЕЙ И ПОДКЛЮЧЕНИЯ
-// ==========================================
 const SOCIAL_LINKS = {
   telegram: "",
   youtube: "",
@@ -10,18 +7,11 @@ const SOCIAL_LINKS = {
 const ADMIN_USERNAME = "melvkin_0";
 const SUPABASE_URL = "https://ieybojpqsrvztfcetcgj.supabase.co";
 const SUPABASE_KEY = "sb_publishable_BGAB8G5Xf1XiwQYFO1LJiA_HCviWGd7";
-
-// ==========================================
-// БАЗОВЫЕ ПУТИ И ИНИЦИАЛИЗАЦИЯ
-// ==========================================
 const BASE_PATH = "/Sparkmc2/";
+
 const sb = (typeof window.supabase !== "undefined" && SUPABASE_KEY.startsWith("sb_"))
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-      auth: {
-        detectSessionInUrl: true,
-        persistSession: true,
-        autoRefreshToken: true
-      }
+      auth: { detectSessionInUrl: true, persistSession: true, autoRefreshToken: true }
     })
   : null;
 
@@ -31,7 +21,7 @@ function appUrl(path) {
 }
 
 function escapeHtml(str) {
-  if (!str) return " ";
+  if (!str) return "";
   return String(str)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -40,245 +30,44 @@ function escapeHtml(str) {
     .replace(/'/g, "&#039;");
 }
 
-// ==========================================
-// ЕДИНЫЙ МИНИМАЛИСТИЧНЫЙ СТИЛЬ (FULLSCREEN)
-// ==========================================
 (function injectGlobalStyles() {
   const style = document.createElement("style");
   style.textContent = `
-    :root {
-      --bg: #09090b;
-      --surface: #111114;
-      --surface-hover: #18181b;
-      --border: rgba(255, 255, 255, 0.08);
-      --border-hover: rgba(255, 255, 255, 0.18);
-      --text: #fafafa;
-      --muted: #a1a1aa;
-      --accent: #ffffff;
-      --accent-text: #09090b;
-      --danger: #ff5c5c;
-    }
+    :root { --bg: #09090b; --surface: #111114; --surface-hover: #18181b; --border: rgba(255, 255, 255, 0.08); --border-hover: rgba(255, 255, 255, 0.18); --text: #fafafa; --muted: #a1a1aa; --accent: #ffffff; --accent-text: #09090b; --danger: #ff5c5c; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      min-height: 100vh;
-      width: 100%;
-      background-color: var(--bg);
-      background-image:
-        linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-      background-size: 48px 48px;
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
-      display: flex;
-      flex-direction: column;
-      overflow-x: hidden;
-      opacity: 0;
-      transition: opacity 0.28s ease;
-    }
+    html, body { min-height: 100vh; width: 100%; background-color: var(--bg); background-image: linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px); background-size: 48px 48px; color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; overflow-x: hidden; opacity: 0; transition: opacity 0.28s ease; }
     body.page-ready { opacity: 1; }
     body.page-leaving { opacity: 0; }
-
-    header.site-header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      width: 100%;
-      background: rgba(9, 9, 11, 0.8);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border);
-    }
-    .header-inner {
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 14px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-    .brand {
-      font-weight: 700;
-      font-size: 16px;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .brand-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #4ade80;
-      box-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
-    }
-    nav.nav-links {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-    nav.nav-links a {
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 14px;
-      padding: 7px 12px;
-      border-radius: 8px;
-      transition: color 0.2s, background 0.2s;
-    }
-    nav.nav-links a:hover, nav.nav-links a.active {
-      color: var(--text);
-      background: rgba(255, 255, 255, 0.06);
-    }
-    nav.nav-links a.admin-link {
-      color: #fbbf24;
-      border: 1px solid rgba(251, 191, 36, 0.25);
-      background: rgba(251, 191, 36, 0.06);
-    }
-    nav.nav-links a.admin-link:hover {
-      background: rgba(251, 191, 36, 0.14);
-    }
-    .auth-box {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 8px 16px;
-      border-radius: 9px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
-      text-decoration: none;
-      transition: all 0.2s ease;
-    }
-    .btn:hover {
-      background: var(--surface-hover);
-      border-color: var(--border-hover);
-    }
-    .btn-primary {
-      background: var(--accent);
-      color: var(--accent-text);
-      border-color: var(--accent);
-    }
-    .btn-primary:hover {
-      opacity: 0.9;
-      background: var(--accent);
-    }
-    .btn-danger {
-      color: var(--danger);
-      border-color: rgba(255, 92, 92, 0.22);
-    }
-    .btn-danger:hover {
-      background: rgba(255, 92, 92, 0.1);
-      border-color: rgba(255, 92, 92, 0.4);
-    }
-    .user-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 5px 12px 5px 6px;
-      border-radius: 999px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 500;
-      transition: border-color 0.2s;
-    }
+    header.site-header { position: sticky; top: 0; z-index: 100; width: 100%; background: rgba(9, 9, 11, 0.8); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+    .header-inner { max-width: 1120px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .brand { font-weight: 700; font-size: 16px; letter-spacing: -0.02em; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .brand-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 10px rgba(74, 222, 128, 0.5); }
+    nav.nav-links { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    nav.nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; padding: 7px 12px; border-radius: 8px; transition: color 0.2s, background 0.2s; }
+    nav.nav-links a:hover, nav.nav-links a.active { color: var(--text); background: rgba(255, 255, 255, 0.06); }
+    nav.nav-links a.admin-link { color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.25); background: rgba(251, 191, 36, 0.06); }
+    nav.nav-links a.admin-link:hover { background: rgba(251, 191, 36, 0.14); }
+    .auth-box { display: flex; align-items: center; gap: 10px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border-radius: 9px; font-size: 14px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text); text-decoration: none; transition: all 0.2s ease; }
+    .btn:hover { background: var(--surface-hover); border-color: var(--border-hover); }
+    .btn-primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-danger { color: var(--danger); border-color: rgba(255, 92, 92, 0.22); }
+    .btn-danger:hover { background: rgba(255, 92, 92, 0.1); border-color: rgba(255, 92, 92, 0.4); }
+    .user-chip { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px 5px 6px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); color: var(--text); text-decoration: none; font-size: 13px; font-weight: 500; transition: border-color 0.2s; }
     .user-chip:hover { border-color: var(--border-hover); }
-    .user-chip img {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      object-fit: cover;
-      background: #222;
-    }
-
-    main.page-main {
-      flex: 1;
-      width: 100%;
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 40px 24px;
-      display: flex;
-      flex-direction: column;
-      animation: fadeUp 0.35s ease;
-    }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 28px;
-    }
-    .input, .textarea {
-      width: 100%;
-      background: #09090b;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 11px 14px;
-      color: var(--text);
-      font-size: 14px;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .input:focus, .textarea:focus {
-      border-color: rgba(255, 255, 255, 0.32);
-    }
+    .user-chip img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; background: #222; }
+    main.page-main { flex: 1; width: 100%; max-width: 1120px; margin: 0 auto; padding: 40px 24px; display: flex; flex-direction: column; animation: fadeUp 0.35s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; }
+    .input, .textarea { width: 100%; background: #09090b; border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; color: var(--text); font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.2s; }
+    .input:focus, .textarea:focus { border-color: rgba(255, 255, 255, 0.32); }
     .textarea { resize: vertical; min-height: 96px; }
-
-    footer.site-footer {
-      width: 100%;
-      border-top: 1px solid var(--border);
-      padding: 18px 24px;
-      margin-top: auto;
-    }
-    .footer-inner {
-      max-width: 1120px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-    .footer-copy {
-      font-size: 13px;
-      color: var(--muted);
-    }
-    .social-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .social-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      transition: all 0.2s ease;
-    }
+    footer.site-footer { width: 100%; border-top: 1px solid var(--border); padding: 18px 24px; margin-top: auto; }
+    .footer-inner { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .footer-copy { font-size: 13px; color: var(--muted); }
+    .social-row { display: flex; align-items: center; gap: 10px; }
+    .social-btn { width: 36px; height: 36px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.2s ease; }
     .social-btn svg { width: 17px; height: 17px; fill: currentColor; }
     .social-btn.tg:hover { color: #26a5e4; border-color: rgba(38, 165, 228, 0.45); background: rgba(38, 165, 228, 0.08); }
     .social-btn.yt:hover { color: #ff4444; border-color: rgba(255, 68, 68, 0.45); background: rgba(255, 68, 68, 0.08); }
@@ -288,9 +77,6 @@ function escapeHtml(str) {
   document.head.appendChild(style);
 })();
 
-// ==========================================
-// АВТОРИЗАЦИЯ И ПРОФИЛИ
-// ==========================================
 let currentUser = null;
 let currentProfile = null;
 
@@ -300,33 +86,19 @@ function isCurrentUserAdmin() {
 
 async function ensureProfile(user) {
   if (!sb || !user) return null;
-  const { data: existing } = await sb
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .maybeSingle();
-
+  const { data: existing } = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle();
   if (existing) return existing;
 
   const meta = user.user_metadata || {};
   const raw = meta.preferred_username || meta.user_name || meta.name || ("player_" + user.id.slice(0, 6));
   let clean = raw.toLowerCase().replace(/[^a-z0-9_]/g, "");
-
   const reserved = ["ads", "me", "upd", "updates", "lore", "rules", "settings", "admin", "players", "login", "api"];
+  
   if (!clean || reserved.includes(clean)) {
     clean = "player_" + user.id.slice(0, 6);
   }
 
-  const { data: created } = await sb
-    .from("profiles")
-    .insert({
-      id: user.id,
-      username: clean,
-      avatar_url: meta.avatar_url || ""
-    })
-    .select()
-    .maybeSingle();
-
+  const { data: created } = await sb.from("profiles").insert({ id: user.id, username: clean, avatar_url: meta.avatar_url || "" }).select().maybeSingle();
   return created || { id: user.id, username: clean, avatar_url: meta.avatar_url || "", banner_url: "", bio: "" };
 }
 
@@ -354,25 +126,15 @@ async function initAuth() {
 }
 
 async function loginWithDiscord(btn) {
-  if (!sb) {
-    alert("Не удалось подключиться к базе данных. Проверь, работает ли сайт Supabase (cdn.jsdelivr.net может быть недоступен в твоём регионе).");
-    return;
-  }
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = "Переход в Discord...";
-  }
+  if (!sb) { alert("Ошибка подключения к базе данных."); return; }
+  if (btn) { btn.disabled = true; btn.textContent = "Переход в Discord..."; }
+  
   const redirectTo = window.location.origin + BASE_PATH;
-  const { error } = await sb.auth.signInWithOAuth({
-    provider: "discord",
-    options: { redirectTo }
-  });
+  const { error } = await sb.auth.signInWithOAuth({ provider: "discord", options: { redirectTo } });
+  
   if (error) {
     alert("Ошибка входа: " + error.message);
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = "Войти через Discord";
-    }
+    if (btn) { btn.disabled = false; btn.textContent = "Войти через Discord"; }
   }
 }
 
@@ -381,9 +143,6 @@ async function logoutUser() {
   navigateSmooth(appUrl(""));
 }
 
-// ==========================================
-// ШАПКА, ПОДВАЛ И ПЛАВНЫЕ ПЕРЕХОДЫ
-// ==========================================
 function renderLayoutShell() {
   const path = window.location.pathname;
   const isHome = path === BASE_PATH || path === BASE_PATH + "index.html";
@@ -397,35 +156,12 @@ function renderLayoutShell() {
   let authHtml = `<button class="btn btn-primary" onclick="loginWithDiscord(this)">Войти через Discord</button>`;
   if (currentProfile) {
     const avatar = currentProfile.avatar_url || "https://cdn.discordapp.com/embed/avatars/0.png";
-    authHtml = `
-      <a href="${appUrl(currentProfile.username)}" class="user-chip" data-nav>
-        <img src="${escapeHtml(avatar)}" alt="">
-        <span>${escapeHtml(currentProfile.username)}</span>
-      </a>
-      <a href="${appUrl("settings")}" class="btn" data-nav>Настройки</a>
-      <button class="btn btn-danger" onclick="logoutUser()">Выйти</button>
-    `;
+    authHtml = `<a href="${appUrl(currentProfile.username)}" class="user-chip" data-nav><img src="${escapeHtml(avatar)}" alt=""><span>${escapeHtml(currentProfile.username)}</span></a><a href="${appUrl("settings")}" class="btn" data-nav>Настройки</a><button class="btn btn-danger" onclick="logoutUser()">Выйти</button>`;
   }
 
-  const adminNavHtml = isCurrentUserAdmin()
-    ? `<a href="${appUrl("admin")}" class="admin-link ${isAdminPage ? "active" : ""}" data-nav>Админ-панель</a>`
-    : "";
+  const adminNavHtml = isCurrentUserAdmin() ? `<a href="${appUrl("admin")}" class="admin-link ${isAdminPage ? "active" : ""}" data-nav>Админ-панель</a>` : "";
 
-  header.innerHTML = `
-    <div class="header-inner">
-      <a href="${appUrl("")}" class="brand" data-nav>
-        <span class="brand-dot"></span>
-        <span>Spark MC</span>
-      </a>
-      <nav class="nav-links">
-        <a href="${appUrl("")}" class="${isHome ? "active" : ""}" data-nav>Главная</a>
-        <a href="${appUrl("lore")}" class="${isLore ? "active" : ""}" data-nav>Лор и механики</a>
-        <a href="${appUrl("updates")}" class="${isUpdates ? "active" : ""}" data-nav>Новости</a>
-        ${adminNavHtml}
-      </nav>
-      <div class="auth-box">${authHtml}</div>
-    </div>
-  `;
+  header.innerHTML = `<div class="header-inner"><a href="${appUrl("")}" class="brand" data-nav><span class="brand-dot"></span><span>Spark MC</span></a><nav class="nav-links"><a href="${appUrl("")}" class="${isHome ? "active" : ""}" data-nav>Главная</a><a href="${appUrl("lore")}" class="${isLore ? "active" : ""}" data-nav>Лор и механики</a><a href="${appUrl("updates")}" class="${isUpdates ? "active" : ""}" data-nav>Новости</a>${adminNavHtml}</nav><div class="auth-box">${authHtml}</div></div>`;
   document.body.prepend(header);
 
   const icons = {
@@ -444,18 +180,7 @@ function renderLayoutShell() {
 
   const footer = document.createElement("footer");
   footer.className = "site-footer";
-  footer.innerHTML = `
-    <div class="footer-inner">
-      <div class="footer-copy">Spark MC · Создается @melvkin_</div>
-      <div class="social-row">
-        ${socialItems.map(s => `
-          <a href="${escapeHtml(s.url)}" target="_blank" rel="noopener" class="social-btn ${s.cls}" title="${s.label}">
-            ${icons[s.key]}
-          </a>
-        `).join("")}
-      </div>
-    </div>
-  `;
+  footer.innerHTML = `<div class="footer-inner"><div class="footer-copy">Spark MC · Создается @melvkin_</div><div class="social-row">${socialItems.map(s => `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener" class="social-btn ${s.cls}" title="${s.label}">${icons[s.key]}</a>`).join("")}</div></div>`;
   document.body.appendChild(footer);
 
   document.addEventListener("click", (e) => {
@@ -472,14 +197,9 @@ function renderLayoutShell() {
 
 function navigateSmooth(url) {
   document.body.classList.add("page-leaving");
-  setTimeout(() => {
-    window.location.href = url;
-  }, 220);
+  setTimeout(() => { window.location.href = url; }, 220);
 }
 
-// ==========================================
-// ЗАГРУЗКА ФАЙЛОВ В SUPABASE STORAGE
-// ==========================================
 async function uploadMediaFile(file, folder, userId) {
   if (!sb || !file) return null;
   const ext = (file.name.split(".").pop() || "png").toLowerCase();
@@ -490,18 +210,7 @@ async function uploadMediaFile(file, folder, userId) {
   return data.publicUrl;
 }
 
-// ==========================================
-// СТРАХОВКА: СТРАНИЦА ВСЕГДА ПОКАЖЕТСЯ,
-// ДАЖЕ ЕСЛИ ЛЮБОЙ СКРИпт УПАЛ С ОШИБКОЙ
-// ==========================================
-window.addEventListener("error", () => {
-  document.body.classList.add("page-ready");
-});
-window.addEventListener("unhandledrejection", () => {
-  document.body.classList.add("page-ready");
-});
-document.addEventListener("DOMContentLoaded", () => {
-  setTimeout(() => {
-    document.body.classList.add("page-ready");
-  }, 1500);
-});
+// Страховка от белого экрана при любой ошибке
+window.addEventListener("error", () => document.body.classList.add("page-ready"));
+window.addEventListener("unhandledrejection", () => document.body.classList.add("page-ready"));
+document.addEventListener("DOMContentLoaded", () => setTimeout(() => document.body.classList.add("page-ready"), 1500));
