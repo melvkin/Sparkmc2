@@ -1,71 +1,53 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Spark MC — Лор и механики</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/Sparkmc2/config.js?v=9"></script>
-  <style>
-    .section-head {
-      margin-bottom: 28px;
-    }
-    .section-head h1 {
-      font-size: 30px;
-      letter-spacing: -0.02em;
-      margin-bottom: 8px;
-    }
-    .section-head p {
-      color: var(--muted);
-      font-size: 15px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
-    }
-    .grid .card h3 {
-      font-size: 17px;
-      margin-bottom: 10px;
-    }
-    .grid .card p {
-      font-size: 14px;
-      line-height: 1.6;
-      color: var(--muted);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spark MC — Лор и механики</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js?v=12"></script>
 </head>
 <body>
-  <main class="page-main">
-    <div class="section-head">
-      <h1>Лор и механики Spark MC</h1>
-      <p>Ключевые идеи и особенности мира, над которыми идёт работа.</p>
-    </div>
-    <div class="grid">
-      <div class="card">
-        <h3>Живой лор мира</h3>
-        <p>История сервера развивается вместе с игроками: события, локации и тайны открываются постепенно по ходу сезона.</p>
-      </div>
-      <div class="card">
-        <h3>Продуманные механики</h3>
-        <p>Уникальные игровые взаимодействия и детали, которые дополняют ванильную атмосферу, не перегружая геймплей.</p>
-      </div>
-      <div class="card">
-        <h3>Честный баланс</h3>
-        <p>Никакого влияния на игровой процесс за деньги — все достижения зависят только от самих игроков.</p>
-      </div>
-      <div class="card">
-        <h3>Профили участников</h3>
-        <p>У каждого игрока есть своя страница на сайте с баннером, аватаркой и описанием персонажа.</p>
-      </div>
-    </div>
-  </main>
-
-  <script>
-    (async () => {
-      await initAuth();
-      renderLayoutShell();
-    })();
-  </script>
+    <main class="page-main">
+        <h1 id="lore-title" style="font-size: 32px; font-weight: 700; margin-bottom: 8px;">Лор и механики Spark MC</h1>
+        <p id="lore-desc" style="color: var(--muted); margin-bottom: 32px; font-size: 16px;">Ключевые идеи и особенности мира, над которыми идёт работа.</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Живой лор мира</h3>
+                <p style="color: var(--muted); font-size: 14px; line-height: 1.6;">История сервера развивается вместе с игроками: события, локации и тайны открываются постепенно по ходу сезона.</p>
+            </div>
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Продуманные механики</h3>
+                <p style="color: var(--muted); font-size: 14px; line-height: 1.6;">Уникальные игровые взаимодействия и детали, которые дополняют ванильную атмосферу, не перегружая геймплей.</p>
+            </div>
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Честный баланс</h3>
+                <p style="color: var(--muted); font-size: 14px; line-height: 1.6;">Никакого влияния на игровой процесс за деньги — все достижения зависят только от самих игроков.</p>
+            </div>
+            <div class="card">
+                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Профили участников</h3>
+                <p style="color: var(--muted); font-size: 14px; line-height: 1.6;">У каждого игрока есть своя страница на сайте с баннером, аватаркой и описанием персонажа.</p>
+            </div>
+        </div>
+    </main>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            await initAuth();
+            renderLayoutShell();
+            
+            // Загрузка динамического контента из базы данных
+            if (sb) {
+                const { data } = await sb.from("site_content").select("key, value");
+                if (data) {
+                    const content = {};
+                    data.forEach(item => { content[item.key] = item.value; });
+                    
+                    if (content.lore_title) document.getElementById("lore-title").textContent = content.lore_title;
+                    if (content.lore_desc) document.getElementById("lore-desc").textContent = content.lore_desc;
+                }
+            }
+        });
+    </script>
 </body>
 </html>
