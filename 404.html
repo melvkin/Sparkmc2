@@ -145,4 +145,13 @@
                     return;
                 }
                 const bannerHtml = data.banner_url ? `<div style="width: 100%; height: 160px; background-image: url('${escapeHtml(data.banner_url)}'); background-size: cover; background-position: center; border-radius: 12px 12px 0 0; margin: -28px -28px 0 -28px;"></div>` : `<div style="width: 100%; height: 160px; background: var(--surface-hover); border-radius: 12px 12px 0 0; margin: -28px -28px 0 -28px;"></div>`;
-                const avatarHtml = data.avatar_url ? `<img src="${escapeHtml(data.avatar_url)}" style="width: 96px; height: 96px; border-radius: 50%; border: 4px solid var(--surface); object-fit: cover; margin-top: -48px; background: #222;">` : `<div style="width: 96px; height: 96px; border-radius: 50%; border: 4px solid var(--surface); background: #222; margin-top: -48px; display: flex; align-items: center
+                const avatarHtml = data.avatar_url ? `<img src="${escapeHtml(data.avatar_url)}" style="width: 96px; height: 96px; border-radius: 50%; border: 4px solid var(--surface); object-fit: cover; margin-top: -48px; background: #222;">` : `<div style="width: 96px; height: 96px; border-radius: 50%; border: 4px solid var(--surface); background: #222; margin-top: -48px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--muted);">?</div>`;
+
+                container.innerHTML = `<div class="card" style="text-align: left; position: relative;">${bannerHtml}<div style="padding: 0 16px; display: flex; align-items: flex-end; gap: 16px;">${avatarHtml}<div style="margin-bottom: 8px;"><h2 style="font-size: 24px; font-weight: 700;">${escapeHtml(data.username)}</h2><div style="font-size: 13px; color: var(--muted);">Участник с ${new Date(data.created_at).toLocaleDateString("ru-RU")}</div></div></div><div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border);"><h3 style="font-size: 16px; margin-bottom: 12px;">О себе</h3><p style="color: var(--muted); line-height: 1.6; white-space: pre-wrap;">${data.bio ? escapeHtml(data.bio) : "Пока ничего не написано..."}</p></div></div>`;
+            } catch (err) {
+                container.innerHTML = `<div class="card" style="text-align: center;"><h2>Ошибка</h2><p style="color: var(--danger);">${err.message}</p></div>`;
+            }
+        }
+    </script>
+</body>
+</html>
